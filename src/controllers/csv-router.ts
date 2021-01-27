@@ -1,7 +1,10 @@
 import { Request, Response, Router } from "express";
 import { Parser } from "json2csv";
 import csv from "fast-csv";
-import fs from 'fs';
+import multer from "multer";
+import fs from "fs";
+
+const upload = multer({ dest: 'tmp/csv/' });
 
 export const csvRouter = Router();
 
@@ -22,7 +25,7 @@ csvRouter.post("/to-csv", (req: Request, res: Response) => {
   return downloadResource(res, "output.csv", Object.keys(req.body), req.body);
 });
 
-csvRouter.post("/from-csv", (req: Request, res: Response) => {
+csvRouter.post("/from-csv", upload.single('file'), (req: Request, res: Response) => {
   const fileRows: any = [];
 
   csv.parseFile(req.file.path)
