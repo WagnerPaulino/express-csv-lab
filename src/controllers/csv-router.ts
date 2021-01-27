@@ -30,7 +30,7 @@ csvRouter.post("/from-csv", upload.single('file'), (_req: Request, res: Response
 
   fs.createReadStream('data.csv')
     .pipe(csv())
-    .on('data', (data) => fileRows.push(data))
+    .on('data', (data: any) => fileRows.push(data))
     .on('end', () => {
       res.send(fileRows);
       return;
