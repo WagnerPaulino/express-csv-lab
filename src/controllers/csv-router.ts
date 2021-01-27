@@ -1,5 +1,7 @@
 import { Request, Response, Router } from "express";
 import { Parser } from "json2csv";
+import csv from "fast-csv";
+import fs from 'fs';
 
 export const csvRouter = Router();
 
@@ -18,4 +20,17 @@ const downloadResource = (
 
 csvRouter.post("/to-csv", (req: Request, res: Response) => {
   return downloadResource(res, "output.csv", Object.keys(req.body), req.body);
+});
+
+csvRouter.post("/from-csv", (req: Request, res: Response) => {
+  const fileRows: any = [];
+
+  csv.parseFile(req.file.path)
+    .on("data", function (data: any) {
+      fileRows.push(data);
+    })
+    .on("end", function () {
+      res.send(fileRows);
+      fs.unlinkSync(req.file.path);
+    })
 });
