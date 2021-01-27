@@ -4,7 +4,7 @@ import csv from "csv-parser";
 import multer from "multer";
 import fs from "fs";
 
-const upload = multer({ dest: 'tmp/csv/' });
+const upload = multer({ dest: "tmp/csv/" });
 
 export const csvRouter = Router();
 
@@ -25,14 +25,19 @@ csvRouter.post("/to-csv", (req: Request, res: Response) => {
   return downloadResource(res, "output.csv", Object.keys(req.body), req.body);
 });
 
-csvRouter.post("/from-csv", upload.single('file'), (_req: Request, res: Response) => {
-  const fileRows: any = [];
+csvRouter.post(
+  "/from-csv",
+  upload.single("file"),
+  (req: Request, res: Response) => {
+    const fileRows: any = [];
 
-  fs.createReadStream('data.csv')
-    .pipe(csv())
-    .on('data', (data: any) => fileRows.push(data))
-    .on('end', () => {
-      res.send(fileRows);
-      return;
-    });
-});
+    fs.createReadStream(req.file.path)
+      .pipe(csv())
+      .on("data", (data: any) => fileRows.push(data))
+      .on("end", () => {
+        res.send(fileRows);
+        fs.rm(req.file.path, () => {});
+        return;
+      });
+  }
+);
